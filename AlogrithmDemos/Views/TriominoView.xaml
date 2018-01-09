@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="AlogrithmDemos.TriominoView"
+﻿<UserControl x:Class="AlogrithmDemos.Views.TriominoView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -8,9 +8,9 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <DrawingGroup x:Key="TriominoVLine">
-            <GeometryDrawing Brush="LightYellow">
+            <GeometryDrawing Brush="PaleGoldenrod">
                 <GeometryDrawing.Pen>
-                    <Pen Brush="DarkGray" Thickness="1.0"/>
+                    <Pen Brush="Gray" Thickness="1.0"/>
                 </GeometryDrawing.Pen>
                 <GeometryDrawing.Geometry>
                     <PathGeometry>
@@ -30,9 +30,9 @@
                     </PathGeometry>
                 </GeometryDrawing.Geometry>
             </GeometryDrawing>
-            <GeometryDrawing Brush="LightYellow">
+            <GeometryDrawing Brush="PaleGoldenrod">
                 <GeometryDrawing.Pen>
-                    <Pen Brush="LightGray" Thickness="1.0"/>
+                    <Pen Brush="DarkGray" Thickness="1.0"/>
                 </GeometryDrawing.Pen>
                 <GeometryDrawing.Geometry>
                     <GeometryGroup>
@@ -45,7 +45,7 @@
         <DrawingGroup x:Key="TriominoTopLeft">
             <GeometryDrawing Brush="LightBlue">
                 <GeometryDrawing.Pen>
-                    <Pen Brush="DarkGray" Thickness="1.0"/>
+                    <Pen Brush="Gray" Thickness="1.0"/>
                 </GeometryDrawing.Pen>
                 <GeometryDrawing.Geometry>
                     <PathGeometry>
@@ -69,12 +69,12 @@
             </GeometryDrawing>
             <GeometryDrawing Brush="LightBlue">
                 <GeometryDrawing.Pen>
-                    <Pen Brush="LightGray" Thickness="1.0"/>
+                    <Pen Brush="DarkGray" Thickness="1.0"/>
                 </GeometryDrawing.Pen>
                 <GeometryDrawing.Geometry>
                     <GeometryGroup>
                         <LineGeometry StartPoint="0.5,20" EndPoint="19.5,20"/>
-                        <LineGeometry StartPoint="20,0" EndPoint="20,19.5"/>
+                        <LineGeometry StartPoint="20,0.5" EndPoint="20,19.5"/>
                     </GeometryGroup>
                 </GeometryDrawing.Geometry>
             </GeometryDrawing>
@@ -82,7 +82,7 @@
         <DrawingGroup x:Key="TriominoTopRight">
             <GeometryDrawing Brush="LightGreen">
                 <GeometryDrawing.Pen>
-                    <Pen Brush="DarkGray" Thickness="1.0"/>
+                    <Pen Brush="Gray" Thickness="1.0"/>
                 </GeometryDrawing.Pen>
                 <GeometryDrawing.Geometry>
                     <PathGeometry>
@@ -106,7 +106,7 @@
             </GeometryDrawing>
             <GeometryDrawing Brush="LightGreen">
                 <GeometryDrawing.Pen>
-                    <Pen Brush="LightGray" Thickness="1.0"/>
+                    <Pen Brush="DarkGray" Thickness="1.0"/>
                 </GeometryDrawing.Pen>
                 <GeometryDrawing.Geometry>
                     <GeometryGroup>
@@ -119,7 +119,7 @@
         <DrawingGroup x:Key="TriominoBottomLeft">
             <GeometryDrawing Brush="LightCoral">
                 <GeometryDrawing.Pen>
-                    <Pen Brush="DarkGray" Thickness="1.0"/>
+                    <Pen Brush="Gray" Thickness="1.0"/>
                 </GeometryDrawing.Pen>
                 <GeometryDrawing.Geometry>
                     <PathGeometry>
@@ -143,7 +143,7 @@
             </GeometryDrawing>
             <GeometryDrawing Brush="LightCoral">
                 <GeometryDrawing.Pen>
-                    <Pen Brush="LightGray" Thickness="1.0"/>
+                    <Pen Brush="DarkGray" Thickness="1.0"/>
                 </GeometryDrawing.Pen>
                 <GeometryDrawing.Geometry>
                     <GeometryGroup>
@@ -154,9 +154,9 @@
             </GeometryDrawing>
         </DrawingGroup>
         <DrawingGroup x:Key="TriominoBottomRight">
-            <GeometryDrawing Brush="LightSteelBlue">
+            <GeometryDrawing Brush="SteelBlue">
                 <GeometryDrawing.Pen>
-                    <Pen Brush="DarkGray" Thickness="1.0"/>
+                    <Pen Brush="Gray" Thickness="1.0"/>
                 </GeometryDrawing.Pen>
                 <GeometryDrawing.Geometry>
                     <PathGeometry>
@@ -178,9 +178,9 @@
                     </PathGeometry>
                 </GeometryDrawing.Geometry>
             </GeometryDrawing>
-            <GeometryDrawing Brush="LightSteelBlue">
+            <GeometryDrawing Brush="SteelBlue">
                 <GeometryDrawing.Pen>
-                    <Pen Brush="LightGray" Thickness="1.0"/>
+                    <Pen Brush="DarkGray" Thickness="1.0"/>
                 </GeometryDrawing.Pen>
                 <GeometryDrawing.Geometry>
                     <GeometryGroup>
@@ -193,7 +193,7 @@
         <DrawingGroup x:Key="TriominoHLine">
             <GeometryDrawing Brush="LightSeaGreen">
                 <GeometryDrawing.Pen>
-                    <Pen Brush="DarkGray" Thickness="1.0"/>
+                    <Pen Brush="Gray" Thickness="1.0"/>
                 </GeometryDrawing.Pen>
                 <GeometryDrawing.Geometry>
                     <PathGeometry>
@@ -215,7 +215,7 @@
             </GeometryDrawing>
             <GeometryDrawing Brush="LightSeaGreen">
                 <GeometryDrawing.Pen>
-                    <Pen Brush="LightGray" Thickness="1.0"/>
+                    <Pen Brush="DarkGray" Thickness="1.0"/>
                 </GeometryDrawing.Pen>
                 <GeometryDrawing.Geometry>
                     <GeometryGroup>
@@ -226,7 +226,7 @@
             </GeometryDrawing>
         </DrawingGroup>
     </UserControl.Resources>
-    <Grid Background="Gray">
+    <Grid Background="DarkGray">
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="5*"/>

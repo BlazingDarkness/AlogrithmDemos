@@ -15,7 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
-namespace AlogrithmDemos
+namespace AlogrithmDemos.Views
 {
     /// <summary>
     /// Interaction logic for TriominoView.xaml
