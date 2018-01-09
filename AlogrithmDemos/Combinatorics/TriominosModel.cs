@@ -111,8 +111,6 @@ namespace AlogrithmDemos.Combinatorics
             if (m_StackIndex >= 0)
             {
                 ref StepData prevStep = ref Steps[m_StackIndex];
-                long oldPerm = 0;
-                bool memFound = m_Dictionary.TryGetValue(m_State, out oldPerm);
 
                 if (prevStep.placed)
                 {
