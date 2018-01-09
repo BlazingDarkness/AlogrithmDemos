@@ -7,6 +7,14 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="4*"/>
+        </Grid.ColumnDefinitions>
+        <ScrollViewer>
+        </ScrollViewer>
+        <ContentControl Grid.Column="1">
+            <local:TriominoView />
+        </ContentControl>
     </Grid>
 </Window>
