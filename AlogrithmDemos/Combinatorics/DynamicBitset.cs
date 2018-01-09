@@ -29,13 +29,16 @@ namespace AlogrithmDemos.Combinatorics
             SetAll(initVal);
         }
 
-        private DynamicBitset(uint[] data)
+        //Creates a deep copy of the dynamic bitset
+        public DynamicBitset(DynamicBitset bitset)
         {
-            m_Chunks = new uint[data.Length];
-            for (int i = 0; i < data.Length; ++i)
+            m_Chunks = new uint[bitset.m_Chunks.Length];
+            for (int i = 0; i < bitset.m_Chunks.Length; ++i)
             {
-                m_Chunks[i] = data[i];
+                m_Chunks[i] = bitset.m_Chunks[i];
             }
+            Count = bitset.Count;
+            m_TopMask = bitset.m_TopMask;
         }
 
         public int Count { get; private set; }
@@ -46,12 +49,7 @@ namespace AlogrithmDemos.Combinatorics
 
         public object Clone()
         {
-            var bitset = new DynamicBitset(m_Chunks);
-
-            bitset.Count = Count;
-            bitset.m_TopMask = m_TopMask;
-
-            return bitset;
+            return new DynamicBitset(this);
         }
 
         public void CopyTo(Array array, int index)
