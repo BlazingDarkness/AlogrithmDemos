@@ -27,7 +27,8 @@ namespace AlogrithmDemos.Combinatorics
 
         HLine,       /* BBB */
         NumOfPieces,
-        None
+        None,
+        Mem
     }
 
     public class TriominosModel
@@ -98,133 +99,126 @@ namespace AlogrithmDemos.Combinatorics
             }
         }
 
-        /// <summary>
-        /// Computes the next step of the dancing links algorithm
-        /// </summary>
-        public void NextStep()
+        public long Calculate()
         {
-            if (Completed)
-                return;
+            Reset();
 
-            ++StepsTaken;
+            Permutations = Calculate(0, 0, 0);
+            Completed = true;
 
-            if (m_StackIndex >= 0)
+            return Permutations;
+        }
+
+        private long Calculate(int x, int y, int depth)
+        {
+            long total = 0;
+
+            if(m_Dictionary.TryGetValue(m_State, out long prevPermutations))
             {
-                ref StepData prevStep = ref Steps[m_StackIndex];
-
-                if (prevStep.placed)
-                {
-                    if ((m_StackIndex + 1) == m_MaxPieces)
-                    {
-                        //Can't place another, remove previous instead
-                        FlipValidTriomino(prevStep.triomino, prevStep.x, prevStep.y);
-                        prevStep.placed = false;
-                    }
-                    else if(m_UseMem && m_Dictionary.TryGetValue(m_State, out long prevPermutations))
-                    {
-                        Permutations += prevPermutations;
-                        FlipValidTriomino(prevStep.triomino, prevStep.x, prevStep.y);
-                        prevStep.placed = false;
-                    }
-                    else
-                    {
-                        int index = prevStep.x + prevStep.y * Width;
-
-                        //Find index for next piece to be placed
-                        while (!m_State[index])
-                        {
-                            ++index;
-                        }
-
-                        //Find next piece to be placed at the index
-                        int nextX = index % Width;
-                        int nextY = index / Width;
-                        ETriomino next = GetNextValidTriomino(ETriomino.None, nextX, nextY);
-
-                        //If Piece found then place it
-                        if (next != ETriomino.None)
-                        {
-                            ++m_StackIndex;
-                            FlipValidTriomino(next, nextX, nextY);
-
-                            Steps[m_StackIndex].triomino = next;
-                            Steps[m_StackIndex].x = nextX;
-                            Steps[m_StackIndex].y = nextY;
-                            Steps[m_StackIndex].permutations = Permutations;
-                            Steps[m_StackIndex].placed = true;
-
-                            if ((m_StackIndex + 1) == m_MaxPieces)
-                                ++Permutations;
-                        }
-                        else //No piece found, remove previous piece
-                        {
-                            FlipValidTriomino(prevStep.triomino, prevStep.x, prevStep.y);
-                            prevStep.placed = false;
-                        }
-                    }
-                }
-                else
-                {
-                    //Previous was removed, see if it can be replaced with a different one
-                    ETriomino next = GetNextValidTriomino(prevStep.triomino, prevStep.x, prevStep.y);
-
-                    //If a replacement piece was found
-                    if (next != ETriomino.None)
-                    {
-                        prevStep.triomino = next;
-                        prevStep.permutations = Permutations;
-                        prevStep.placed = true;
-                        FlipValidTriomino(prevStep.triomino, prevStep.x, prevStep.y);
-                    }
-                    else //No replacement piece found
-                    {
-                        //If no more pieces to be removed
-                        if (m_StackIndex == 0)
-                        {
-                            Completed = true;
-                        }
-                        else //Remove the next piece
-                        {
-                            --m_StackIndex;
-
-                            if(m_UseMem)
-                            {
-                                m_Dictionary.Add((DynamicBitset)m_State.Clone(), Permutations - Steps[m_StackIndex].permutations);
-                            }
-
-                            FlipValidTriomino(Steps[m_StackIndex].triomino, Steps[m_StackIndex].x, Steps[m_StackIndex].y);
-                            Steps[m_StackIndex].placed = false;
-                        }
-                    }
-                }
+                total += prevPermutations;
             }
             else
             {
-                //Get first valid piece
-                ETriomino next = GetNextValidTriomino(ETriomino.None, 0, 0);
+                int index = x + y * Width;
 
-                //If Piece found then place it
-                if (next != ETriomino.None)
+                //Find index for next piece to be placed
+                while (!m_State[index])
                 {
-                    ++m_StackIndex;
-                    FlipValidTriomino(next, 0, 0);
-
-                    Steps[0].triomino = next;
-                    Steps[0].x = 0;
-                    Steps[0].y = 0;
-                    Steps[0].permutations = 0;
-                    Steps[0].placed = true;
-
-                    if ((m_StackIndex + 1) == m_MaxPieces)
-                        ++Permutations;
+                    ++index;
                 }
-                else //No valid starting piece
+
+                //Find next piece to be placed at the index
+                int nextX = index % Width;
+                int nextY = index / Width;
+                int nextDepth = depth + 1;
+                ETriomino next = GetNextValidTriomino(ETriomino.None, nextX, nextY);
+
+                while (next != ETriomino.None)
                 {
-                    Completed = true;
+                    if (nextDepth == m_MaxPieces)
+                    {
+                        total += 1;
+                    }
+                    else
+                    {
+                        FlipValidTriomino(next, nextX, nextY);
+                        total += Calculate(nextX, nextY, nextDepth);
+                        FlipValidTriomino(next, nextX, nextY);
+                    }
+                    next = GetNextValidTriomino(next, nextX, nextY);
+                }
+
+                if(total != 0)
+                {
+                    m_Dictionary.Add((DynamicBitset)m_State.Clone(), total);
+                }
+            }
+
+            return total;
+        }
+
+        public IEnumerator CalculateCoroutine()
+        {
+            Reset();
+
+            IEnumerator e = CalculateCoroutine(0, 0, 0);
+            while (e.MoveNext())
+                yield return null;
+
+            Completed = true;
+        }
+
+        private IEnumerator CalculateCoroutine(int x, int y, int depth)
+        {
+            if (m_UseMem && m_Dictionary.TryGetValue(m_State, out long permutations))
+            {
+                Permutations += permutations;
+                //FlipValidTriominoAndSetStep(ETriomino.Mem, 0, 0, depth);
+                yield return null;
+            }
+            else
+            {
+                long prevPermutations = Permutations;
+                int index = x + y * Width;
+
+                //Find index for next piece to be placed
+                while (!m_State[index])
+                {
+                    ++index;
+                }
+
+                //Find next piece to be placed at the index
+                int nextX = index % Width;
+                int nextY = index / Width;
+                int nextDepth = depth + 1;
+                ETriomino next = GetNextValidTriomino(ETriomino.None, nextX, nextY);
+
+                while (next != ETriomino.None)
+                {
+                    FlipValidTriominoAndSetStep(next, nextX, nextY, depth);
+                    yield return null;
+                    if (nextDepth == m_MaxPieces)
+                    {
+                        Permutations += 1L;
+                    }
+                    else
+                    {
+                        IEnumerator e = CalculateCoroutine(nextX, nextY, nextDepth);
+                        while (e.MoveNext())
+                            yield return null;
+                    }
+                    FlipValidTriominoAndSetStep(next, nextX, nextY, depth);
+                    yield return null;
+                    next = GetNextValidTriomino(next, nextX, nextY);
+                }
+
+                if (m_UseMem && (prevPermutations != Permutations))
+                {
+                    m_Dictionary.Add((DynamicBitset)m_State.Clone(), Permutations - prevPermutations);
                 }
             }
         }
-
+        
         private bool State(int x, int y)
         {
             return m_State[x + y * Width];
@@ -274,6 +268,8 @@ namespace AlogrithmDemos.Combinatorics
                     else
                         return ETriomino.None;
                 case ETriomino.HLine:
+                    return ETriomino.None;
+                case ETriomino.Mem:
                     return ETriomino.None;
                 default:
                     return ETriomino.None;
@@ -325,6 +321,16 @@ namespace AlogrithmDemos.Combinatorics
             }
         }
 
+        private void FlipValidTriominoAndSetStep(ETriomino triomino, int x, int y, int depth)
+        {
+            Steps[depth].triomino = triomino;
+            Steps[depth].x = x;
+            Steps[depth].y = y;
+            Steps[depth].placed = !Steps[depth].placed;
+            ++StepsTaken;
+            FlipValidTriomino(triomino, x, y);
+        }
+
         /// <summary>
         /// Flips the bits corresponding the the specific triomino piece at the specified location
         /// Does not do any bounds checking for additional performance gains
@@ -368,65 +374,6 @@ namespace AlogrithmDemos.Combinatorics
                     FlipState(x + 1, y);
                     FlipState(x + 2, y);
                     return;
-                default:
-                    return;
-            }
-        }
-
-        private void FlipTriomino(ETriomino triomino, int x, int y)
-        {
-            switch (triomino)
-            {
-                case ETriomino.None:
-                    return;
-                case ETriomino.VLine:
-                    if ((y + 2) < Height)
-                    {
-                        FlipState(x, y);
-                        FlipState(x, y + 1);
-                        FlipState(x, y + 2);
-                    }
-                    break;
-                case ETriomino.TopLeft:
-                    if (((y + 1) < Height) && ((x + 1) < Width))
-                    {
-                        FlipState(x, y);
-                        FlipState(x, y + 1);
-                        FlipState(x + 1, y);
-                    }
-                    break;
-                case ETriomino.TopRight:
-                    if (((y + 1) < Height) && ((x + 1) < Width))
-                    {
-                        FlipState(x, y);
-                        FlipState(x + 1, y);
-                        FlipState(x + 1, y + 1);
-                    }
-                    break;
-                case ETriomino.BottomLeft:
-                    if (((y + 1) < Height) && ((x + 1) < Width))
-                    {
-                        FlipState(x, y);
-                        FlipState(x, y + 1);
-                        FlipState(x + 1, y + 1);
-                    }
-                    break;
-                case ETriomino.BottomRight:
-                    if (((y + 1) < Height) && (x > 0))
-                    {
-                        FlipState(x, y);
-                        FlipState(x, y + 1);
-                        FlipState(x - 1, y + 1);
-                    }
-                    break;
-                case ETriomino.HLine:
-                    if ((x + 2) < Width)
-                    {
-                            FlipState(x, y);
-                            FlipState(x + 1, y);
-                            FlipState(x + 2, y);
-                    }
-                    break;
                 default:
                     return;
             }

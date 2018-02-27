@@ -233,14 +233,15 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
             <ColumnDefinition Width="2*"/>
-            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Image Name="TriominoImage" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <StackPanel Grid.Column="1" Grid.Row="1">
             <Button Name="ResetButton" Content="Reset" HorizontalAlignment="Center" Width="75" Click="ResetButton_Click"/>
             <Button Name="NextStepButton" Content="Next Step" HorizontalAlignment="Center" Width="75" Click="NextStepButton_Click"/>
             <Button Name="RunButton" Content="Run" HorizontalAlignment="Center" Width="75" Click="RunButton_Click"/>
+            <Button Name="FastRunButton" Content="Fast Run" HorizontalAlignment="Center" Width="75" Click="FastRunButton_Click"/>
             <CheckBox Name="MemCheckBox" HorizontalAlignment="Center" Content="Use Memorization" Click="MemCheckBox_Click"/>
             <Grid>
                 <Grid.RowDefinitions>

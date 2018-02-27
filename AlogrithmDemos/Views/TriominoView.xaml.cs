@@ -1,5 +1,6 @@
 ﻿using AlogrithmDemos.Combinatorics;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,6 +33,7 @@ namespace AlogrithmDemos.Views
         private const double m_CellSize = 20.0;
 
         DispatcherTimer m_UIUpdateTimer;
+        IEnumerator m_Iterator;
 
         private bool IsRunning { get; set; } = false;
         private bool ShouldRun { get; set; } = false;
@@ -46,13 +48,14 @@ namespace AlogrithmDemos.Views
             m_GeometryDrawings.Children.Add(m_TriominoDrawings);
 
             m_TriominoModel = new TriominosModel(2, 6);
+            m_Iterator = m_TriominoModel.CalculateCoroutine();
 
             RecalcGridDrawGroup(m_TriominoModel.Width, m_TriominoModel.Height);
 
             TriominoImage.Source = new DrawingImage(m_GeometryDrawings);
 
             m_UIUpdateTimer = new DispatcherTimer();
-            m_UIUpdateTimer.Interval = TimeSpan.FromMilliseconds(15);
+            m_UIUpdateTimer.Interval = TimeSpan.FromMilliseconds(30);
             m_UIUpdateTimer.Tick += RunUIUpdate;
         }
 
@@ -96,6 +99,7 @@ namespace AlogrithmDemos.Views
             
             GeometryGroup gridGeometry = new GeometryGroup();
 
+            gridGeometry.Children.Add(new RectangleGeometry(new Rect(new Point(0.0, 0.0), new Point(gridWidth, gridHeight))));
             //Create vertical lines
             for(double x = 0; x < gridWidth; x += m_CellSize)
             {
@@ -107,10 +111,8 @@ namespace AlogrithmDemos.Views
             {
                 gridGeometry.Children.Add(new LineGeometry(new Point(0.0, y), new Point(gridWidth, y)));
             }
-            gridGeometry.Children.Add(new RectangleGeometry(new Rect(new Point(0.0, 0.0), new Point(gridWidth, gridHeight))));
 
             m_GridDrawing = new GeometryDrawing(Brushes.LightGray, new Pen(Brushes.DarkGray, 1.0), gridGeometry);
-            m_GridDrawing.Freeze();
 
             m_GeometryDrawings.Children.Insert(0, m_GridDrawing);
         }
@@ -130,8 +132,8 @@ namespace AlogrithmDemos.Views
                 }
             }
 
-            StepsLabel.Content = m_TriominoModel.StepsTaken;
-            PermutationsLabel.Content = m_TriominoModel.Permutations;
+            StepsLabel.Content = $"{m_TriominoModel.StepsTaken:n0}";
+            PermutationsLabel.Content = $"{m_TriominoModel.Permutations:n0}";
             CompletedLabel.Content = m_TriominoModel.Completed;
         }
 
@@ -140,10 +142,9 @@ namespace AlogrithmDemos.Views
             int width = Convert.ToInt32(e.NewValue);
             if (m_TriominoModel != null)
             {
-                ShouldRun = false;
+                Reset();
                 RecalcGridDrawGroup(width, m_TriominoModel.Height);
                 m_TriominoModel.Resize(width, m_TriominoModel.Height);
-                RecalcTriominoDrawGroup();
             }
         }
 
@@ -152,24 +153,21 @@ namespace AlogrithmDemos.Views
             int height = Convert.ToInt32(e.NewValue);
             if (m_TriominoModel != null)
             {
-                ShouldRun = false;
+                Reset();
                 RecalcGridDrawGroup(m_TriominoModel.Width, height);
                 m_TriominoModel.Resize(m_TriominoModel.Width, height);
-                RecalcTriominoDrawGroup();
             }
         }
 
         private void NextStepButton_Click(object sender, RoutedEventArgs e)
         {
-            m_TriominoModel.NextStep();
+            m_Iterator.MoveNext();
             RecalcTriominoDrawGroup();
         }
 
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
-            ShouldRun = false;
-            m_TriominoModel.Reset();
-            RecalcTriominoDrawGroup();
+            Reset();
         }
 
         private void RunButton_Click(object sender, RoutedEventArgs e)
@@ -182,27 +180,44 @@ namespace AlogrithmDemos.Views
             {
                 IsRunning = true;
                 ShouldRun = true;
+                NextStepButton.IsEnabled = false;
+                FastRunButton.IsEnabled = false;
                 RunButton.Content = "Stop";
                 m_UIUpdateTimer.Start();
                 Run();
             }
         }
 
+        private void FastRunButton_Click(object sender, RoutedEventArgs e)
+        {
+            FastRunButton.Content = "Calculating...";
+            m_TriominoModel.Reset();
+            m_TriominoModel.Calculate();
+            FastRunButton.Content = "Fast Run";
+            RecalcTriominoDrawGroup();
+        }
+
         private void MemCheckBox_Click(object sender, RoutedEventArgs e)
         {
-            ShouldRun = false;
+            Reset();
             m_TriominoModel.UseMemorization = MemCheckBox.IsChecked ?? false;
+        }
+
+        private void Reset()
+        {
+            ShouldRun = false;
+            m_TriominoModel.Reset();
             RecalcTriominoDrawGroup();
+            m_Iterator = m_TriominoModel.CalculateCoroutine();
         }
 
         private void Run()
         {
             if(ShouldRun)
             {
-                m_TriominoModel.NextStep();
-                if(!m_TriominoModel.Completed)
+                if(m_Iterator.MoveNext())
                 {
-                    Dispatcher.BeginInvoke(DispatcherPriority.SystemIdle, new NextStepDelegate(this.Run));
+                    Dispatcher.BeginInvoke(DispatcherPriority.Background, new NextStepDelegate(this.Run));
                 }
                 else
                 {
@@ -220,6 +235,8 @@ namespace AlogrithmDemos.Views
             m_UIUpdateTimer.Stop();
             IsRunning = false;
             RunButton.Content = "Run";
+            NextStepButton.IsEnabled = true;
+            FastRunButton.IsEnabled = true;
             RecalcTriominoDrawGroup();
         }
 
