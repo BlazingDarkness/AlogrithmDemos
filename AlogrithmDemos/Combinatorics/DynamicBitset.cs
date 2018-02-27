@@ -112,7 +112,7 @@ namespace AlogrithmDemos.Combinatorics
 
         public void Flip(int index)
         {
-            m_Chunks[index / 32] ^= (uint)(1 << (index & 31));
+            m_Chunks[index >> 5] ^= (uint)(1 << (index & 31));
         }
 
         public bool this[int index]
