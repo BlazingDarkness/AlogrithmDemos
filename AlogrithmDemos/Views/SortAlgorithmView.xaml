@@ -1,0 +1,71 @@
+﻿<UserControl x:Class="AlogrithmDemos.Views.SortAlgorithmView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AlogrithmDemos.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="720" d:DesignWidth="1280"
+             Name="SortAlgorithmViewControl">
+    <Grid Background="DarkGray">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="100*"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="30"/>
+        </Grid.ColumnDefinitions>
+        <Image Name="DataImage" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+        </Image>
+        <StackPanel Grid.Column="1" Grid.Row="3">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="85"/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="30"/>
+                </Grid.ColumnDefinitions>
+                <Button Name="ResetButton" Content="Reset" HorizontalAlignment="Center" Width="76" Click="ResetButton_Click" Grid.Column="4" Grid.Row="0" Margin="12,0"/>
+                <Button Name="ShuffleButton" Content="Shuffle" HorizontalAlignment="Center" Width="76" Click="ShuffleButton_Click" Grid.Column="4" Grid.Row="1" Margin="12,0"/>
+                <Button Name="NextStepButton" Content="Next Step" HorizontalAlignment="Center" Width="76" Click="NextStepButton_Click" Grid.Column="4" Grid.Row="2" Margin="12,0"/>
+                <Button Name="RunButton" Content="Run" HorizontalAlignment="Center" Width="76" Click="RunButton_Click" Grid.Column="4" Grid.Row="3" Margin="12,0"/>
+                <Button Name="FastRunButton" Content="Fast Run" HorizontalAlignment="Center" Width="76" Click="FastRunButton_Click" Grid.Column="4" Grid.Row="4" Margin="12,0"/>
+
+                <!--<CheckBox Name="MemCheckBox" HorizontalAlignment="Center" Content="Use Memorization" Grid.ColumnSpan="3" Click="MemCheckBox_Click"/>-->
+                <Label Content="Data Set Size: " Grid.Row="0" Grid.Column="1"/>
+                <Label Content="{Binding ElementName=DataSetSizeSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="2"/>
+                <Slider Name="DataSetSizeSlider" IsSnapToTickEnabled="True" Value="6" SmallChange="16" Minimum="16" Maximum="2048" Grid.Row="0" Grid.Column="3" ValueChanged="DataSetSizeSlider_ValueChanged" TickFrequency="16" Ticks="16 32 64 128 256 512 1024 2048" TickPlacement="BottomRight"/>
+                <Label Content="Step Delay: " Grid.Row="1" Grid.Column="1"/>
+                <Label Content="{Binding ElementName=StepDelaySlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="2" />
+                <Slider Name="StepDelaySlider" IsSnapToTickEnabled="True" Value="8" SmallChange="2" Minimum="0" Maximum="512" Grid.Row="1" Grid.Column="3" ValueChanged="StepDelaySlider_ValueChanged" TickFrequency="2" Ticks="0 2 4 8 16 32 64 128 256 512" TickPlacement="BottomRight"/>
+
+                <Label Content="Steps Taken:" Grid.Row="2" Grid.Column="1"/>
+                <Label Content="Comparisons:" Grid.Row="3" Grid.Column="1"/>
+                <Label Content="Swaps:" Grid.Row="4" Grid.Column="1"/>
+                <Label Content="Element Copies:" Grid.Row="5" Grid.Column="1"/>
+                <Label Content="Completed:" Grid.Row="6" Grid.Column="1"/>
+                <Label Name="StepsLabel" Grid.Column="2" Grid.Row="2" Content="0"/>
+                <Label Name="ComparisonsLabel" Grid.Column="2" Grid.Row="3" Content="0"/>
+                <Label Name="SwapsLabel" Grid.Column="2" Grid.Row="4" Content="0"/>
+                <Label Name="ElementCopiesLabel" Grid.Column="2" Grid.Row="5" Content="0"/>
+                <Label Name="CompletedLabel" Content="False" Grid.Column="2" Grid.Row="6"/>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</UserControl>

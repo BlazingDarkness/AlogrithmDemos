@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AlogrithmDemos"
+             xmlns:views="clr-namespace:AlogrithmDemos.Views"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
@@ -242,9 +243,9 @@
             <Button Name="NextStepButton" Content="Next Step" HorizontalAlignment="Center" Width="75" Click="NextStepButton_Click"/>
             <Button Name="RunButton" Content="Run" HorizontalAlignment="Center" Width="75" Click="RunButton_Click"/>
             <Button Name="FastRunButton" Content="Fast Run" HorizontalAlignment="Center" Width="75" Click="FastRunButton_Click"/>
-            <CheckBox Name="MemCheckBox" HorizontalAlignment="Center" Content="Use Memorization" Click="MemCheckBox_Click"/>
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition/>
                     <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
@@ -253,13 +254,15 @@
                     <ColumnDefinition Width="25"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Label Content="Rows: "/>
-                <Label Content="{Binding ElementName=RowsSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1"/>
-                <Slider Name="RowsSlider" IsSnapToTickEnabled="True" Value="6" SmallChange="1" Minimum="2" Maximum="12" TickPlacement="BottomRight" Grid.Column="2" ValueChanged="RowsSlider_ValueChanged"/>
-                <Label Content="Cols: " Grid.Row="1"/>
-                <Label Content="{Binding ElementName=ColsSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" />
-                <Slider Name="ColsSlider" IsSnapToTickEnabled="True" Value="2" SmallChange="1" Minimum="2" Maximum="12" TickPlacement="BottomRight" Grid.Row="1" Grid.Column="2" ValueChanged="ColsSlider_ValueChanged"/>
+                <CheckBox Name="MemCheckBox" HorizontalAlignment="Center" Content="Use Memorization" Grid.ColumnSpan="3" Click="MemCheckBox_Click"/>
+                <Label Content="Rows: " Grid.Row="1"/>
+                <Label Content="{Binding ElementName=RowsSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1"/>
+                <Slider Name="RowsSlider" IsSnapToTickEnabled="True" Value="6" SmallChange="1" Minimum="2" Maximum="12" TickPlacement="BottomRight" Grid.Row="1" Grid.Column="2" ValueChanged="RowsSlider_ValueChanged"/>
+                <Label Content="Cols: " Grid.Row="2"/>
+                <Label Content="{Binding ElementName=ColsSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1" />
+                <Slider Name="ColsSlider" IsSnapToTickEnabled="True" Value="2" SmallChange="1" Minimum="2" Maximum="12" TickPlacement="BottomRight" Grid.Row="2" Grid.Column="2" ValueChanged="ColsSlider_ValueChanged"/>
             </Grid>
+
             <Grid >
                 <Grid.RowDefinitions>
                     <RowDefinition/>
@@ -277,6 +280,11 @@
                 <Label Name="PermutationsLabel" Content="0" Grid.Column="1" Grid.Row="1"/>
                 <Label Name="CompletedLabel" Content="False" Grid.Column="1" Grid.Row="2"/>
             </Grid>
+            <!--<views:AlgorithmControl>
+                <views:AlgorithmControl.Controls>
+                    <Button></Button>
+                </views:AlgorithmControl.Controls>
+            </views:AlgorithmControl>-->
         </StackPanel>
     </Grid>
 </UserControl>

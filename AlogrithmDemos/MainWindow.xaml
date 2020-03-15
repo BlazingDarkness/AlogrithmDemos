@@ -5,17 +5,45 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AlogrithmDemos"
         xmlns:views="clr-namespace:AlogrithmDemos.Views"
+        xmlns:models="clr-namespace:AlogrithmDemos.Models"
         mc:Ignorable="d"
-        Title="Algorithm Demos" Height="350" Width="525">
+        Title="Algorithm Demos" Height="720" Width="1280">
+    <Window.Resources>
+        <DataTemplate x:Key="CategoryTemplate" DataType="{x:Type local:Category}">
+            <TextBlock Text="{Binding Name}" />
+        </DataTemplate>
+        <DataTemplate x:Key="TriominoTemplate" DataType="{x:Type local:SteppableModelWrapper}">
+            <views:TriominoView DataContext="{Binding Path=Model}"/>
+        </DataTemplate>
+        <DataTemplate x:Key="SortAlgorithmTemplate" DataType="{x:Type local:SteppableModelWrapper}">
+            <views:SortAlgorithmView DataContext="{Binding Path=Model}"/>
+        </DataTemplate>
+        <local:SteppableModelDataTemplateSelector x:Key="SteppableModelTemplateSelector"
+                                                  CategoryTemplate="{StaticResource CategoryTemplate}"
+                                                  TriominoDataTemplate="{StaticResource TriominoTemplate}"
+                                                  SortAlgorithmDataTemplate="{StaticResource SortAlgorithmTemplate}"/>
+    </Window.Resources>
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="4*"/>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="12*"/>
         </Grid.ColumnDefinitions>
         <ScrollViewer>
+            <TreeView Name="treeview_Models">
+                <TreeView.Resources>
+                    <HierarchicalDataTemplate DataType="{x:Type local:Category}" ItemsSource="{Binding Models}">
+                        <TextBlock Text="{Binding Name}" />
+                    </HierarchicalDataTemplate>
+                    <DataTemplate DataType="{x:Type local:SteppableModelWrapper}">
+                        <TextBlock Text="{Binding Model.Name}" />
+                    </DataTemplate>
+                </TreeView.Resources>
+            </TreeView>
         </ScrollViewer>
-        <ContentControl Grid.Column="1">
-            <views:TriominoView />
+        <ContentControl Grid.Column="1" Content="{Binding ElementName=treeview_Models, Path=SelectedItem}" ContentTemplateSelector="{StaticResource SteppableModelTemplateSelector}">
         </ContentControl>
     </Grid>
 </Window>

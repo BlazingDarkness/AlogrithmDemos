@@ -2,25 +2,30 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AlogrithmDemos.Combinatorics
+namespace AlogrithmDemos.DataStructures
 {
     class DynamicBitset : ICollection, IEnumerable, ICloneable
     {
+        private const int MAX_BITS_SHIFT = 5; //log2 of MAX_BITS 
+        private const int MAX_BITS = 32; //Must be a power of 2
+        private const int MOD_MAX_BITS_MASK = MAX_BITS - 1;
+
         private uint[] m_Chunks;
         private uint m_TopMask;
-
+        
         public DynamicBitset(int bits)
         {
-            m_Chunks = new uint[(bits + 31) / 32];
+            m_Chunks = new uint[(bits + MOD_MAX_BITS_MASK) / MAX_BITS];
             Count = bits;
 
-            if ((bits & 31) == 0)
+            if ((bits & MOD_MAX_BITS_MASK) == 0)
                 m_TopMask = UInt32.MaxValue;
             else
-                m_TopMask = UInt32.MaxValue >> (32 - (bits & 31));
+                m_TopMask = UInt32.MaxValue >> (MAX_BITS - (bits & MOD_MAX_BITS_MASK));
         }
 
 
@@ -110,27 +115,30 @@ namespace AlogrithmDemos.Combinatorics
             }
         }
 
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Flip(int index)
         {
-            m_Chunks[index >> 5] ^= (uint)(1 << (index & 31));
+            m_Chunks[index >> MAX_BITS_SHIFT] ^= (uint)(1L << (index & MOD_MAX_BITS_MASK));
         }
 
         public bool this[int index]
         {
+            //[MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 if(value)
                 {
-                    m_Chunks[index / 32] |= (uint)(1 << (index & 31));
+                    m_Chunks[index >> MAX_BITS_SHIFT] |= (uint)(1L << (index & MOD_MAX_BITS_MASK));
                 }
                 else
                 {
-                    m_Chunks[index / 32] &= ~(uint)(1 << (index & 31));
+                    m_Chunks[index >> MAX_BITS_SHIFT] &= ~(uint)(1L << (index & MOD_MAX_BITS_MASK));
                 }
             }
+            //[MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return (m_Chunks[index / 32] & (uint)(1 << (index & 31))) != 0;
+                return (m_Chunks[index >> MAX_BITS_SHIFT] & (uint)(1L << (index & MOD_MAX_BITS_MASK))) != 0;
             }
         }
     }

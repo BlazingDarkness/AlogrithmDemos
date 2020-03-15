@@ -1,4 +1,4 @@
-﻿using AlogrithmDemos.Combinatorics;
+﻿using AlogrithmDemos.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -47,6 +47,8 @@ namespace AlogrithmDemos.Views
             m_TriominoDrawings = new DrawingGroup();
             m_GeometryDrawings.Children.Add(m_TriominoDrawings);
 
+            DataContextChanged += TriominoView_DataContextChanged;
+
             m_TriominoModel = new TriominosModel(2, 6);
             m_Iterator = m_TriominoModel.CalculateCoroutine();
 
@@ -57,6 +59,21 @@ namespace AlogrithmDemos.Views
             m_UIUpdateTimer = new DispatcherTimer();
             m_UIUpdateTimer.Interval = TimeSpan.FromMilliseconds(30);
             m_UIUpdateTimer.Tick += RunUIUpdate;
+        }
+
+        private void TriominoView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if(DataContext is TriominosModel)
+            {
+                m_TriominoModel = DataContext as TriominosModel;
+            }
+            else if(m_TriominoModel == null)
+            {
+                m_TriominoModel = new TriominosModel(2, 6);
+            }
+            RowsSlider.Value = m_TriominoModel.Height;
+            ColsSlider.Value = m_TriominoModel.Width;
+            Reset();
         }
 
         private void InitializeTriominoGeometries()
