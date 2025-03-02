@@ -9,7 +9,7 @@ namespace AlogrithmDemos.Models.Sorting
 {
     class MergeSort : SortAlgorithm
     {
-        private int[] TempData { get; set; }
+        private int[] TempData { get; set; } = [];
 
         public MergeSort() : this(128)
         {
@@ -20,65 +20,6 @@ namespace AlogrithmDemos.Models.Sorting
         {
             Name = "Merge Sort";
             Resize(dataSetSize);
-        }
-
-
-        public override void Calculate()
-        {
-            EnableHistory = false;
-            for (int segLen = 1; segLen < Data.Length; segLen *= 2)
-            {
-                int mergeLen = segLen * 2;
-                for (int start = 0; start < Data.Length; start += mergeLen)
-                {
-                    int start1 = start;
-                    int end1 = start + segLen;
-                    int start2 = start + segLen;
-                    int end2 = Math.Min(start + mergeLen, Data.Length);  // Prevent out of bounds
-                    int elements = end2 - start1;
-
-                    while (start1 != end1 && start2 != end2)
-                    {
-                        if(Compare(start1, start2))
-                        {
-                            Bin(start2);
-                            ++start2;
-                            EndStep();
-                        }
-                        else
-                        {
-                            Bin(start1);
-                            ++start1;
-                            EndStep();
-                        }
-                    }
-
-                    // Add the rest of the segment that still has elements
-                    if(start1 != end1)
-                    {
-                        Bin(start1);
-                        ++start1;
-                        EndStep();
-                    }
-                    else
-                    {
-                        Bin(start2);
-                        ++start2;
-                        EndStep();
-                    }
-
-                    // Unpack the elements from the additional memory
-                    for(int i = start; i < elements; ++i)
-                    {
-                        UnbinNext(i);
-                        EndStep();
-                    }
-
-                    EndStep();
-                }
-            }
-            EnableHistory = true;
-            Completed = true;
         }
 
         public override IEnumerator CalculateCoroutine()
@@ -95,7 +36,7 @@ namespace AlogrithmDemos.Models.Sorting
 
                     while (start1 != end1 && start2 != end2)
                     {
-                        if (Compare(start1, start2))
+                        if (CompareHigher(start1, start2))
                         {
                             Bin(start2);
                             ++start2;

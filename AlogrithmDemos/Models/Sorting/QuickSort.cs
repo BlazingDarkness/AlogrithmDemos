@@ -23,47 +23,6 @@ namespace AlogrithmDemos.Models.Sorting
             Resize(dataSetSize);
         }
 
-
-        public override void Calculate()
-        {
-            Sort(0, Data.Length - 1);
-            Completed = true;
-        }
-
-        private void Sort(int low, int high)
-        {
-            if (low < high)
-            {
-                int pivot = Partition(low, high);
-                Sort(low, pivot - 1);
-                Sort(pivot + 1, high);
-            }
-        }
-
-        private int Partition(int low, int high)
-        {
-            int pivotIndex = (low + high) / 2;
-
-            Swap(pivotIndex, high); // Store pivot at high
-            EndStep();
-
-            pivotIndex = low;
-            for (int i = low; i < high; i++)
-            {
-                if(Compare(high, i)) // Check if pivot is higher
-                {
-                    Swap(pivotIndex, i);
-                    ++pivotIndex;
-                }
-                EndStep();
-            }
-
-            Swap(pivotIndex, high); // Retrieve the pivot from high
-            EndStep();
-
-            return pivotIndex;
-        }
-
         public override IEnumerator CalculateCoroutine()
         {
             IEnumerator e = SortCoroutine(0, Data.Length - 1);
@@ -73,7 +32,6 @@ namespace AlogrithmDemos.Models.Sorting
             Completed = true;
         }
 
-
         private IEnumerator SortCoroutine(int low, int high)
         {
             if (low < high)
@@ -81,6 +39,7 @@ namespace AlogrithmDemos.Models.Sorting
                 IEnumerator e = PartitionCoroutine(low, high);
                 while (e.MoveNext())
                     yield return null;
+
                 int pivot = pivotReturn;
 
                 e = SortCoroutine(low, pivot - 1);
@@ -104,7 +63,7 @@ namespace AlogrithmDemos.Models.Sorting
             pivotIndex = low;
             for (int i = low; i < high; i++)
             {
-                if (Compare(high, i)) // Check if pivot is higher
+                if (CompareHigher(high, i)) // Check if pivot is higher
                 {
                     Swap(pivotIndex, i);
                     ++pivotIndex;

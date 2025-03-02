@@ -12,7 +12,7 @@ namespace AlogrithmDemos.Maths
     public class PerlinNoise
     {
         private int m_Seed = 0;
-        private int[] m_Permutations = new int[512];
+        private readonly int[] m_Permutations = new int[512];
 
         public int Seed
         {
@@ -97,7 +97,7 @@ namespace AlogrithmDemos.Maths
             return (Lerp(y1, y2, w) + 1) / 2;                       // For convenience we bound it to 0 - 1 (theoretical min/max before is -1 - 1)
         }
 
-        private double Grad(int hash, double x, double y, double z)
+        private static double Grad(int hash, double x, double y, double z)
         {
             int h = hash & 15;                                  // Take the hashed value and take the first 4 bits of it (15 == 0b1111)
             double u = h < 8 /* 0b1000 */ ? x : y;              // If the most significant bit (MSB) of the hash is 0 then set u = x.  Otherwise y.

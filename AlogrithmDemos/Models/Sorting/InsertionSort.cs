@@ -20,24 +20,6 @@ namespace AlogrithmDemos.Models.Sorting
             Resize(dataSetSize);
         }
 
-
-        public override void Calculate()
-        {
-            EnableHistory = false;
-            for (int j = 1; j < Data.Length; ++j)
-            {
-                int i = j - 1;
-                while (i >= 0 && SwapIfHigher(i, i + 1))
-                {
-                    --i;
-                    EndStep();
-                }
-                EndStep();
-            }
-            EnableHistory = true;
-            Completed = true;
-        }
-
         public override IEnumerator CalculateCoroutine()
         {
             for (int j = 1; j < Data.Length; ++j)

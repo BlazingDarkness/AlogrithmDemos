@@ -20,72 +20,6 @@ namespace AlogrithmDemos.Models.Sorting
             Resize(dataSetSize);
         }
 
-
-        public override void Calculate()
-        {
-            //Build Heap
-            int start = (Data.Length - 2) / 2;
-            while (start >= 0)
-            {
-                ShiftDown(start, Data.Length - 1);
-                start--;
-            }
-
-            //Run Sort
-            int end = Data.Length - 1;
-
-            while (end > 0)
-            {
-                Swap(0, end);
-                EndStep();
-                end--;
-                ShiftDown(0, end);
-            }
-            Completed = true;
-        }
-
-        private void ShiftDown(int start, int end)
-        {
-            int root = start;
-
-            // Bounds check for first child
-            while (root * 2 < end)
-            {
-                int child = root * 2 + 1;
-                int swap = root;
-
-                // Check first child
-                if (Compare(child, swap))
-                {
-                    swap = child;
-                }
-                EndStep();
-
-                // Bounds check for second child
-                if (child < end) 
-                {
-                    // Check second child
-                    if (Compare(child + 1, swap))
-                    {
-                        swap = child + 1;
-                    }
-                    EndStep();
-                }
-
-                // Check if swap needs to occur
-                if (swap != root)
-                {
-                    Swap(root, swap);
-                    EndStep();
-                    root = swap;
-                }
-                else
-                {
-                    return;
-                }
-            }
-        }
-
         public override IEnumerator CalculateCoroutine()
         {
             //Build Heap
@@ -126,7 +60,7 @@ namespace AlogrithmDemos.Models.Sorting
                 int swap = root;
 
                 // Check first child
-                if (Compare(child, swap))
+                if (CompareHigher(child, swap))
                 {
                     swap = child;
                 }
@@ -137,7 +71,7 @@ namespace AlogrithmDemos.Models.Sorting
                 if (child < end)
                 {
                     // Check second child
-                    if (Compare(child + 1, swap))
+                    if (CompareHigher(child + 1, swap))
                     {
                         swap = child + 1;
                     }
@@ -159,7 +93,6 @@ namespace AlogrithmDemos.Models.Sorting
                 }
             }
         }
-
 
         protected override void AdditionalReset()
         {

@@ -27,13 +27,13 @@ namespace AlogrithmDemos
         {
             InitializeComponent();
 
-            List<Category> modelCategories = new List<Category>();
+            List<Category> modelCategories = [];
 
-            Category combinatorics = new Category() { Name = "Combinatorics" };
+            Category combinatorics = new() { Name = "Combinatorics" };
             combinatorics.Models.Add(new SteppableModelWrapper(new TriominosModel(2, 6)));
             modelCategories.Add(combinatorics);
 
-            Category sorting = new Category() { Name = "Sorting" };
+            Category sorting = new() { Name = "Sorting" };
             sorting.Models.Add(new SteppableModelWrapper(new BubbleSort(128)));
             sorting.Models.Add(new SteppableModelWrapper(new OptimisedBubbleSort(128)));
             sorting.Models.Add(new SteppableModelWrapper(new CocktailSort(128)));
@@ -58,13 +58,13 @@ namespace AlogrithmDemos
 
         public Category()
         {
-            Models = new ObservableCollection<SteppableModelWrapper>();
+            Models = [];
         }
     }
 
     public class SteppableModelWrapper
     {
-        public ISteppableModel Model { get; set; } = null;
+        public ISteppableModel? Model { get; set; } = null;
 
         public SteppableModelWrapper()
         {
@@ -79,21 +79,19 @@ namespace AlogrithmDemos
 
     public class SteppableModelDataTemplateSelector : DataTemplateSelector
     {
-        public DataTemplate CategoryTemplate { get; set; }
-        public DataTemplate TriominoDataTemplate { get; set; }
-        public DataTemplate SortAlgorithmDataTemplate { get; set; }
+        public DataTemplate? CategoryTemplate { get; set; }
+        public DataTemplate? TriominoDataTemplate { get; set; }
+        public DataTemplate? SortAlgorithmDataTemplate { get; set; }
 
-        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+        public override DataTemplate? SelectTemplate(object item, DependencyObject container)
         {
-            if (item is SteppableModelWrapper)
+            if (item is SteppableModelWrapper wrapper)
             {
-                SteppableModelWrapper wrapper = item as SteppableModelWrapper;
-
                 switch (wrapper.Model)
                 {
-                    case TriominosModel triominosModel:
+                    case TriominosModel:
                         return TriominoDataTemplate;
-                    case SortAlgorithm sortAlgorithm:
+                    case SortAlgorithm:
                         return SortAlgorithmDataTemplate;
                 }
             }

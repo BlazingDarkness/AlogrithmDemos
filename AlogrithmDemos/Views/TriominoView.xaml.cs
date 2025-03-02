@@ -26,17 +26,15 @@ namespace AlogrithmDemos.Views
         public delegate void NextStepDelegate();
 
         private TriominosModel m_TriominoModel;
-        private DrawingGroup m_GeometryDrawings;
-        private DrawingGroup m_TriominoDrawings;
-        private GeometryDrawing m_GridDrawing;
-        private DrawingGroup[] m_TriominoGeometries;
+        private readonly DrawingGroup m_GeometryDrawings;
+        private readonly DrawingGroup m_TriominoDrawings;
+        private GeometryDrawing? m_GridDrawing;
+        private DrawingGroup[] m_TriominoGeometries = [];
         private const double m_CellSize = 20.0;
 
-        DispatcherTimer m_UIUpdateTimer;
-        IEnumerator m_Iterator;
+        private readonly DispatcherTimer m_UIUpdateTimer;
 
         private bool IsRunning { get; set; } = false;
-        private bool ShouldRun { get; set; } = false;
 
         public TriominoView()
         {
@@ -50,27 +48,22 @@ namespace AlogrithmDemos.Views
             DataContextChanged += TriominoView_DataContextChanged;
 
             m_TriominoModel = new TriominosModel(2, 6);
-            m_Iterator = m_TriominoModel.CalculateCoroutine();
 
             RecalcGridDrawGroup(m_TriominoModel.Width, m_TriominoModel.Height);
 
             TriominoImage.Source = new DrawingImage(m_GeometryDrawings);
 
-            m_UIUpdateTimer = new DispatcherTimer();
-            m_UIUpdateTimer.Interval = TimeSpan.FromMilliseconds(30);
+            m_UIUpdateTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(30)
+            };
             m_UIUpdateTimer.Tick += RunUIUpdate;
         }
 
         private void TriominoView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if(DataContext is TriominosModel)
-            {
-                m_TriominoModel = DataContext as TriominosModel;
-            }
-            else if(m_TriominoModel == null)
-            {
-                m_TriominoModel = new TriominosModel(2, 6);
-            }
+            m_TriominoModel = DataContext as TriominosModel ?? new TriominosModel(2, 6);
+
             RowsSlider.Value = m_TriominoModel.Height;
             ColsSlider.Value = m_TriominoModel.Width;
             Reset();
@@ -79,9 +72,9 @@ namespace AlogrithmDemos.Views
         private void InitializeTriominoGeometries()
         {
             m_TriominoGeometries = new DrawingGroup[(int)ETriomino.NumOfPieces];
-            
-            object resource = null; ;
-            if((resource = TryFindResource("TriominoVLine")) != null)
+
+            object resource;
+            if ((resource = TryFindResource("TriominoVLine")) != null)
             {
                 m_TriominoGeometries[(int)ETriomino.VLine] = (DrawingGroup)resource;
             }
@@ -114,7 +107,7 @@ namespace AlogrithmDemos.Views
             double gridHeight = m_CellSize * height;
             double gridWidth = m_CellSize * width;
             
-            GeometryGroup gridGeometry = new GeometryGroup();
+            GeometryGroup gridGeometry = new();
 
             gridGeometry.Children.Add(new RectangleGeometry(new Rect(new Point(0.0, 0.0), new Point(gridWidth, gridHeight))));
             //Create vertical lines
@@ -178,7 +171,7 @@ namespace AlogrithmDemos.Views
 
         private void NextStepButton_Click(object sender, RoutedEventArgs e)
         {
-            m_Iterator.MoveNext();
+            m_TriominoModel.RunStep();
             RecalcTriominoDrawGroup();
         }
 
@@ -191,17 +184,16 @@ namespace AlogrithmDemos.Views
         {
             if (IsRunning)
             {
-                ShouldRun = false;
+                m_TriominoModel.Pause();
             }
             else
             {
                 IsRunning = true;
-                ShouldRun = true;
                 NextStepButton.IsEnabled = false;
                 FastRunButton.IsEnabled = false;
                 RunButton.Content = "Stop";
                 m_UIUpdateTimer.Start();
-                Run();
+                m_TriominoModel.Run();
             }
         }
 
@@ -222,44 +214,27 @@ namespace AlogrithmDemos.Views
 
         private void Reset()
         {
-            ShouldRun = false;
             m_TriominoModel.Reset();
             RecalcTriominoDrawGroup();
-            m_Iterator = m_TriominoModel.CalculateCoroutine();
+            ResetControls();
         }
 
-        private void Run()
+        private void RunUIUpdate(object? sender, EventArgs e)
         {
-            if(ShouldRun)
+            if(!m_TriominoModel.IsRunning)
             {
-                if(m_Iterator.MoveNext())
-                {
-                    Dispatcher.BeginInvoke(DispatcherPriority.Background, new NextStepDelegate(this.Run));
-                }
-                else
-                {
-                    Stop();
-                }
+                m_UIUpdateTimer.Stop();
+                ResetControls();
             }
-            else
-            {
-                Stop();
-            }
+            RecalcTriominoDrawGroup();
         }
 
-        private void Stop()
+        private void ResetControls()
         {
-            m_UIUpdateTimer.Stop();
             IsRunning = false;
             RunButton.Content = "Run";
             NextStepButton.IsEnabled = true;
             FastRunButton.IsEnabled = true;
-            RecalcTriominoDrawGroup();
-        }
-
-        private void RunUIUpdate(object sender, EventArgs e)
-        {
-            RecalcTriominoDrawGroup();
         }
     }
 }

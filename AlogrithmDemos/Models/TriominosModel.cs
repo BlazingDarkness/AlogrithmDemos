@@ -31,7 +31,7 @@ namespace AlogrithmDemos.Models
         Mem
     }
 
-    public class TriominosModel : ISteppableModel
+    public class TriominosModel : ThreadedModel
     {
         public struct StepData
         {
@@ -42,12 +42,9 @@ namespace AlogrithmDemos.Models
             public bool placed;
         }
 
-        public string Name { get; } = "Triominos";
         public int Width { private set; get; } = 2;
         public int Height { private set; get; } = 6;
-        public long StepsTaken { private set; get; } = 0;
         public long Permutations { private set; get; } = 0;
-        public bool Completed { private set; get; } = false;
         public bool UseMemorization { set { m_UseMem = value; Reset(); } get { return m_UseMem; } }
         public StepData[] Steps { private set; get; }
 
@@ -55,32 +52,37 @@ namespace AlogrithmDemos.Models
         private int m_MaxPieces = 0;
         private bool m_UseMem = false;
 
-        private Dictionary<DynamicBitset, long> m_Dictionary;
+        private readonly Dictionary<DynamicBitset, long> m_Dictionary;
 
         public TriominosModel() : this(2, 6)
         {
         }
 
-        public TriominosModel(int width, int height)
+        public TriominosModel(int width, int height) : base("Triominos")
         {
             m_UseMem = false;
-            m_Dictionary = new Dictionary<DynamicBitset, long>();
+            m_Dictionary = [];
+            Steps = [];
+            m_State = new DynamicBitset(width * height, true);
 
             Resize(width, height);
         }
 
         public void Resize(int width, int height)
         {
-            Width = width;
-            Height = height;
-            m_MaxPieces = (width * height) / 3;
-            Steps = new StepData[m_MaxPieces];
-            m_State = new DynamicBitset(width * height, true);
+            lock (Lock)
+            {
+                Width = width;
+                Height = height;
+                m_MaxPieces = (width * height) / 3;
+                Steps = new StepData[m_MaxPieces];
+                m_State = new DynamicBitset(width * height, true);
 
-            Reset();
+                Reset();
+            }
         }
 
-        public void Reset()
+        public override void ResetInfo()
         {
             StepsTaken = 0;
             Permutations = 0;
@@ -88,22 +90,23 @@ namespace AlogrithmDemos.Models
             m_State.SetAll(true);
             m_Dictionary.Clear();
 
-            for(int i = 0; i < Steps.Length; ++i)
+            for (int i = 0; i < Steps.Length; ++i)
             {
                 Steps[i].placed = false;
             }
         }
 
-        public void Calculate()
+        public override void Calculate()
         {
             Reset();
-
-            Stopwatch s = Stopwatch.StartNew();
-            Permutations = Calculate(0, 0);
-            s.Stop();
-            Trace.WriteLine($"{(s.Elapsed.TotalMilliseconds)}");
-
-            Completed = true;
+            lock (Lock)
+            {
+                Stopwatch s = Stopwatch.StartNew();
+                Permutations = Calculate(0, 0);
+                s.Stop();
+                Trace.WriteLine($"{(s.Elapsed.TotalMilliseconds)}");
+                Completed = true;
+            }
         }
 
         private long Calculate(int index, int depth)
@@ -152,9 +155,9 @@ namespace AlogrithmDemos.Models
             return total;
         }
 
-        public IEnumerator CalculateCoroutine()
+        public override IEnumerator CalculateCoroutine()
         {
-            Reset();
+            ResetInfo();
 
             IEnumerator e = CalculateCoroutine(0, 0, 0);
             while (e.MoveNext())

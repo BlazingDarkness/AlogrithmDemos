@@ -20,56 +20,6 @@ namespace AlogrithmDemos.Models.Sorting
             Resize(dataSetSize);
         }
 
-
-        public override void Calculate()
-        {
-            EnableHistory = false;
-
-            // Find highest value
-
-            int highestIndex = 0;
-            for (int i = 1; i < Data.Length; ++i)
-            {
-                if (Compare(i, highestIndex))
-                {
-                    highestIndex = i;
-                }
-                EndStep();
-            }
-
-            // Calc the number of digits
-
-            int digits = 0;
-            int digitTest = Data[highestIndex].data;
-
-            do
-            {
-                digits++;
-                digitTest /= BinCount;
-            } while (digitTest > 0);
-
-            // Do a pass per digit
-
-            for (int pass = 0; pass < digits; ++pass)
-            {
-                // Bin the data
-                for (int i = 0; i < Data.Length; ++i)
-                {
-                    Bin(i, pass);
-                    EndStep();
-                }
-
-                // Unbin the data
-                for (int i = 0; i < Data.Length; ++i)
-                {
-                    UnbinNext(i);
-                    EndStep();
-                }
-            }
-            EnableHistory = true;
-            Completed = true;
-        }
-
         public override IEnumerator CalculateCoroutine()
         {
             // Find highest value
@@ -77,7 +27,7 @@ namespace AlogrithmDemos.Models.Sorting
             int highestIndex = 0;
             for (int i = 1; i < Data.Length; ++i)
             {
-                if (Compare(i, highestIndex))
+                if (CompareHigher(i, highestIndex))
                 {
                     highestIndex = i;
                 }

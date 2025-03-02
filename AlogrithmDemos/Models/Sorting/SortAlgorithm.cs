@@ -26,7 +26,7 @@ namespace AlogrithmDemos.Models.Sorting
             public SortAction action;
         }
 
-        private DataRecord[] _Data = null;
+        private DataRecord[] _Data = [];
         private int _BinCount = 8;
 
         // Mandatory data fields
@@ -57,7 +57,7 @@ namespace AlogrithmDemos.Models.Sorting
             get { return _Data; }
         }
 
-        protected Queue<int>[] DataBins { private set; get; }
+        protected Queue<int>[] DataBins { private set; get; } = [];
 
         public int BinCount
         {
@@ -88,14 +88,12 @@ namespace AlogrithmDemos.Models.Sorting
         {
             Reset();
 
-            Random rng = new Random(seed);
+            Random rng = new(seed);
 
             for (int i = Data.Length - 1; i > 0; --i)
             {
                 int pos = rng.Next(i + 1);
-                int val = Data[pos].data;
-                Data[pos].data = Data[i].data;
-                Data[i].data = val;
+                (Data[i].data, Data[pos].data) = (Data[pos].data, Data[i].data);
             }
         }
 
@@ -129,16 +127,14 @@ namespace AlogrithmDemos.Models.Sorting
             AdditionalReset();
         }
 
-        private int Pow(int a, int b)
+        private void UpdateHistory(int element, SortAction action, int bin = 0)
         {
-            int result = 1;
-
-            while(b > 0)
+            if(EnableHistory)
             {
-                result *= a;
+                Data[element].bin = bin;
+                Data[element].step = StepsTaken;
+                Data[element].action = action;
             }
-
-            return result;
         }
 
         /// <summary>
@@ -150,15 +146,8 @@ namespace AlogrithmDemos.Models.Sorting
         {
             ++ElementCopies;
             int bin = (Data[element].data / ((int)Math.Pow(BinCount, digit))) % BinCount;
-
             DataBins[bin].Enqueue(Data[element].data);
-
-            if (EnableHistory)
-            {
-                Data[element].bin = bin;
-                Data[element].step = StepsTaken;
-                Data[element].action = SortAction.Bin;
-            }
+            UpdateHistory(element, SortAction.Bin, bin);
         }
         
         // Places the element into the first bin
@@ -166,12 +155,7 @@ namespace AlogrithmDemos.Models.Sorting
         {
             ++ElementCopies;
             DataBins[0].Enqueue(Data[element].data);
-
-            if (EnableHistory)
-            {
-                Data[element].step = StepsTaken;
-                Data[element].action = SortAction.Bin;
-            }
+            UpdateHistory(element, SortAction.Bin, 0);
         }
 
         protected void UnbinNext(int i)
@@ -183,11 +167,7 @@ namespace AlogrithmDemos.Models.Sorting
 
                 ++ElementCopies;
 
-                if (EnableHistory)
-                {
-                    Data[i].step = StepsTaken;
-                    Data[i].action = SortAction.Swap;
-                }
+                UpdateHistory(i, SortAction.Swap);
             }
             catch (InvalidOperationException)
             {
@@ -196,38 +176,40 @@ namespace AlogrithmDemos.Models.Sorting
 
         protected void Swap(int first, int second)
         {
-            int val = Data[first].data;
-            Data[first].data = Data[second].data;
-            Data[second].data = val;
+            (Data[second].data, Data[first].data) = (Data[first].data, Data[second].data);
             ++Swaps;
             ElementCopies += 3;
 
-            if (EnableHistory)
-            {
-                Data[first].step = StepsTaken;
-                Data[first].action = SortAction.Swap;
-                Data[second].step = StepsTaken;
-                Data[second].action = SortAction.Swap;
-            }
+            UpdateHistory(first, SortAction.Swap);
+            UpdateHistory(second, SortAction.Swap);
         }
 
         /// <summary>
-        /// Swaps the two items if the first is higher than the second
+        /// Compares if the first is higher than the second
         /// </summary>
-        /// <returns>Whether a swap occurred</returns>
-        protected bool Compare(int first, int second)
+        /// <returns>Whether the first is higher</returns>
+        protected bool CompareHigher(int first, int second)
         {
             ++Comparisons;
 
-            if (EnableHistory)
-            {
-                Data[first].step = StepsTaken;
-                Data[first].action = SortAction.Compare;
-                Data[second].step = StepsTaken;
-                Data[second].action = SortAction.Compare;
-            }
+            UpdateHistory(first, SortAction.Compare);
+            UpdateHistory(second, SortAction.Compare);
 
             return Data[first].data > Data[second].data;
+        }
+
+        /// <summary>
+        /// Compares if the first is lower than the second
+        /// </summary>
+        /// <returns>Whether the first is lower</returns>
+        protected bool CompareLower(int first, int second)
+        {
+            ++Comparisons;
+
+            UpdateHistory(first, SortAction.Compare);
+            UpdateHistory(second, SortAction.Compare);
+
+            return Data[first].data < Data[second].data;
         }
 
 
@@ -237,35 +219,12 @@ namespace AlogrithmDemos.Models.Sorting
         /// <returns>Whether a swap occurred</returns>
         protected bool SwapIfHigher(int first, int second)
         {
-            ++Comparisons;
-            if (Data[first].data > Data[second].data)
+            if(CompareHigher(first, second))
             {
-                int val = Data[first].data;
-                Data[first].data = Data[second].data;
-                Data[second].data = val;
-                Swaps++;
-                ElementCopies += 3;
-
-                if (EnableHistory)
-                {
-                    Data[first].step = StepsTaken;
-                    Data[first].action = SortAction.Swap;
-                    Data[second].step = StepsTaken;
-                    Data[second].action = SortAction.Swap;
-                }
+                Swap(first, second);
                 return true;
             }
-            else
-            {
-                if (EnableHistory)
-                {
-                    Data[first].step = StepsTaken;
-                    Data[first].action = SortAction.Compare;
-                    Data[second].step = StepsTaken;
-                    Data[second].action = SortAction.Compare;
-                }
-                return false;
-            }
+            return false;
         }
 
         /// <summary>
@@ -274,35 +233,12 @@ namespace AlogrithmDemos.Models.Sorting
         /// <returns>Whether a swap occurred</returns>
         protected bool SwapIfLower(int first, int second)
         {
-            ++Comparisons;
-            if (Data[first].data < Data[second].data)
+            if (CompareLower(first, second))
             {
-                int val = Data[first].data;
-                Data[first].data = Data[second].data;
-                Data[second].data = val;
-                Swaps++;
-                ElementCopies += 3;
-
-                if (EnableHistory)
-                {
-                    Data[first].step = StepsTaken;
-                    Data[first].action = SortAction.Swap;
-                    Data[second].step = StepsTaken;
-                    Data[second].action = SortAction.Swap;
-                }
+                Swap(first, second);
                 return true;
             }
-            else
-            {
-                if (EnableHistory)
-                {
-                    Data[first].step = StepsTaken;
-                    Data[first].action = SortAction.Compare;
-                    Data[second].step = StepsTaken;
-                    Data[second].action = SortAction.Compare;
-                }
-                return false;
-            }
+            return false;
         }
 
         /// <summary>
@@ -311,14 +247,21 @@ namespace AlogrithmDemos.Models.Sorting
         protected void EndStep()
         {
             StepsTaken++;
-
-            long StepCutoff = StepsTaken - StepHistoryDisplayed;
         }
 
 
         // Algorithm dependant
 
-        abstract public void Calculate();
+        public void Calculate()
+        {
+            EnableHistory = false;
+            
+            var iter = CalculateCoroutine();
+            while (iter.MoveNext()) { }
+
+            EnableHistory = true;
+            Completed = true;
+        }
 
         abstract public IEnumerator CalculateCoroutine();
 

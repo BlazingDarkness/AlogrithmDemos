@@ -27,19 +27,17 @@ namespace AlogrithmDemos.Views
         public delegate void NextStepDelegate();
 
         public SortAlgorithm SortModel { private set; get; }
-        private DrawingGroup m_GeometryDrawings;
-        private DrawingGroup m_DataDrawings;
-        private GeometryDrawing m_BackgroundDrawing;
+        private readonly DrawingGroup m_GeometryDrawings;
+        private readonly DrawingGroup m_DataDrawings;
+        private GeometryDrawing? m_BackgroundDrawing;
 
-        private RectangleGeometry[] m_RectangleGeometryCache;
-        private RectangleGeometry[] m_RectangleBinGeometryCache;
+        private readonly RectangleGeometry[] m_RectangleGeometryCache;
+        private readonly RectangleGeometry[] m_RectangleBinGeometryCache;
 
-        private const double m_CellSize = 20.0;
-
-        private Stopwatch m_Stopwatch = new Stopwatch();
+        private readonly Stopwatch m_Stopwatch = new();
         private long m_PrevElapsedTime = 0;
 
-        private DispatcherTimer m_UIUpdateTimer;
+        private readonly DispatcherTimer m_UIUpdateTimer;
         private IEnumerator m_Iterator;
 
         private bool IsRunning { get; set; } = false;
@@ -79,9 +77,9 @@ namespace AlogrithmDemos.Views
 
         private void SortAlgorithmView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (DataContext is SortAlgorithm)
+            if (DataContext is SortAlgorithm sortModel)
             {
-                SortModel = DataContext as SortAlgorithm;
+                SortModel = sortModel;
             }
             else if (SortModel == null)
             {
@@ -99,7 +97,7 @@ namespace AlogrithmDemos.Views
             double height = 20 + size;
             double width = 20 + 4 * size - 1;
 
-            GeometryGroup backgroundGeometry = new GeometryGroup();
+            GeometryGroup backgroundGeometry = new();
 
             backgroundGeometry.Children.Add(new RectangleGeometry(new Rect(0, 0, width, height)));
 
@@ -113,8 +111,6 @@ namespace AlogrithmDemos.Views
             m_GeometryDrawings.Children.Remove(m_DataDrawings);
 
             long StepHistoryCutoff = SortModel.StepsTaken - SortModel.StepHistoryDisplayed;
-
-            var iterator = m_DataDrawings.Children.GetEnumerator();
 
             for (int i = 0; i < SortModel.Data.Length; ++i)
             {
@@ -138,9 +134,9 @@ namespace AlogrithmDemos.Views
                             double multiplier = ((double)(SortModel.StepsTaken - SortModel.Data[i].step) / (double)SortModel.StepHistoryDisplayed);
 
                             theBrush = new SolidColorBrush(Color.FromArgb(255,
-                                (SortModel.Data[i].action == SortAlgorithm.SortAction.Compare) ? (byte)((double)245 * multiplier) : (byte)245,
-                                (SortModel.Data[i].action == SortAlgorithm.SortAction.Swap) ? (byte)((double)245 * multiplier) : (byte)245,
-                                (byte)((double)245 * multiplier)));
+                                (SortModel.Data[i].action == SortAlgorithm.SortAction.Compare) ? (byte)(245.0 * multiplier) : (byte)245,
+                                (SortModel.Data[i].action == SortAlgorithm.SortAction.Swap) ? (byte)(245.0 * multiplier) : (byte)245,
+                                (byte)(245.0 * multiplier)));
                         }
                         break;
 
@@ -154,9 +150,8 @@ namespace AlogrithmDemos.Views
                     //if (SortModel.Data[i].step > StepHistoryCutoff - 2)
                     {
                         var geoDrawingCollection = m_DataDrawings.Children[i];
-                        if (geoDrawingCollection is GeometryDrawing)
+                        if (geoDrawingCollection is GeometryDrawing geoDrawing)
                         {
-                            GeometryDrawing geoDrawing = geoDrawingCollection as GeometryDrawing;
                             geoDrawing.Brush = theBrush;
                             geoDrawing.Geometry = geo;
                         }
@@ -164,7 +159,7 @@ namespace AlogrithmDemos.Views
                 }
                 else
                 {
-                    GeometryDrawing geoDrawing = new GeometryDrawing(theBrush, null, geo);
+                    GeometryDrawing geoDrawing = new(theBrush, null, geo);
 
                     m_DataDrawings.Children.Add(geoDrawing);
                 }
@@ -265,7 +260,7 @@ namespace AlogrithmDemos.Views
             RecalcDataDrawGroup();
         }
 
-        private void RunUIUpdate(object sender, EventArgs e)
+        private void RunUIUpdate(object? sender, EventArgs e)
         {
             if(ShouldRun)
             {
